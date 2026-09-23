@@ -6,6 +6,7 @@ using namespace std;
 
 class Pipe {
 private:
+    int id = 0;
     string name;
     double length = 0;
     int diameter = 0;
@@ -13,7 +14,9 @@ private:
 
 public:
     Pipe() {}
+    Pipe(int new_id) : id(new_id) {}
 
+    int get_id() { return id; }
     string get_name() { return name; }
     double get_length() { return length; }
     int get_diameter() { return diameter; }

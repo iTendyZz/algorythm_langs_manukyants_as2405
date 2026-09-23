@@ -10,10 +10,11 @@ void Pipe::input_name_and_length(istream& in) {
 
 void Pipe::save_pipe(ofstream& outputF) {
     outputF << "PIPE" << endl;
-    outputF << name << endl << length << endl << diameter << endl << repair << endl;
+    outputF << id << endl << name << endl << length << endl << diameter << endl << repair << endl;
 }
 
 void Pipe::load_pipe(ifstream& loadF) {
+    loadF >> id;
     getline(loadF >> ws, name);
     loadF >> length;
     loadF >> diameter;
@@ -22,14 +23,14 @@ void Pipe::load_pipe(ifstream& loadF) {
 
 istream& operator>>(istream& in, Pipe& p) {
     p.input_name_and_length(in);
-    cout << "Type pipe diameter in mm: ";
-    p.diameter = GetCorrectNumber<int>(1, 10000);
+    cout << "Type pipe diameter in mm (500, 700, 1000, 1400): ";
+    p.diameter = (int)GetCorrectDiameter();
     p.repair = false;
     return in;
 }
 
 ostream& operator<<(ostream& out, Pipe& p) {
-    out << "  " << p.name
+    out << "  ID " << p.id << ": " << p.name
         << " | length: " << p.length << " km"
         << " | diameter: " << p.diameter << " mm"
         << " | status: " << (p.repair ? "in repair" : "in work") << endl;

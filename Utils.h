@@ -5,6 +5,24 @@ using namespace std;
 #define INPUT_LINE(in, str) getline(in>>std::ws, str); \
 std::cerr << str << std::endl
 
+class redirect_output_wrapper
+{
+    std::ostream& stream;
+    std::streambuf* const old_buf;
+public:
+    redirect_output_wrapper(std::ostream& src)
+        : stream(src), old_buf(src.rdbuf()) {
+    }
+    ~redirect_output_wrapper() {
+        stream.rdbuf(old_buf);
+    }
+    void redirect(const std::ostream& dest) const {
+        stream.rdbuf(dest.rdbuf());
+    }
+};
+
+double GetCorrectDiameter();
+
 template <typename T>
 T GetCorrectNumber(T min, T max)
 {

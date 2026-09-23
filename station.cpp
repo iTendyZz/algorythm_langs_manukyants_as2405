@@ -31,11 +31,12 @@ void Station::set_workshops_in_work(int value) {
 
 void Station::save_station(ofstream& outputF) {
     outputF << "CS" << endl;
-    outputF << name << endl << workshops << endl
+    outputF << id << endl << name << endl << workshops << endl
             << workshops_in_work << endl << station_class << endl;
 }
 
 void Station::load_station(ifstream& loadF) {
+    loadF >> id;
     getline(loadF >> ws, name);
     loadF >> workshops;
     loadF >> workshops_in_work;
@@ -55,7 +56,7 @@ istream& operator>>(istream& in, Station& s) {
 }
 
 ostream& operator<<(ostream& out, Station& s) {
-    out << "  " << s.name
+    out << "  ID " << s.id << ": " << s.name
         << " | workshops: " << s.workshops_in_work << " of " << s.workshops << " in work"
         << " | unused: " << s.get_unused_percentage() << " %"
         << " | class: " << s.station_class << endl;
