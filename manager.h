@@ -4,6 +4,7 @@
 #include <string>
 #include "Pipe.h"
 #include "station.h"
+
 using namespace std;
 
 class Manager {
@@ -22,30 +23,40 @@ private:
     vector<int> ask_id_subset(vector<int> available);
     void print_pipes(vector<int> ids);
     void print_stations(vector<int> ids);
+
     vector<int> find_pipes_by_name(string part);
     vector<int> find_pipes_by_repair(bool status);
     vector<int> find_stations_by_name(string part);
     vector<int> find_stations_by_unused(double minimum, double maximum);
     vector<int> find_free_pipes(int diameter);
+
     int create_pipe(int diameter);
     void apply_batch(vector<int> ids);
     void drop_broken_connections();
 
 public:
     void display_main_menu();
+
     void add_pipe();
     void add_station();
+
     void display_all_pipes();
     void display_all_stations();
     void display_all_objects();
+
     void edit_pipe();
     void edit_station();
     void delete_pipe();
     void delete_station();
+
     void search_menu();
     void batch_menu();
+
     void connect_stations();
     void topological_sort();
+    void max_flow();
+    void shortest_path();
+
     void save_to_file();
     void load_from_file();
 };

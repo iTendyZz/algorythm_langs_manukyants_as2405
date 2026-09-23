@@ -7,11 +7,13 @@
 #include <iostream>
 #include <limits>
 #include <queue>
+
 using namespace std;
 
 static string to_lower(string text) {
     for (size_t i = 0; i < text.size(); i++)
         text[i] = (char)tolower((unsigned char)text[i]);
+
     return text;
 }
 
@@ -30,8 +32,10 @@ void Manager::display_main_menu() {
         << "11. Batch operations with pipes" << endl
         << "12. Connect stations" << endl
         << "13. Topological sort" << endl
-        << "14. Save to file" << endl
-        << "15. Load from file" << endl
+        << "14. Max flow" << endl
+        << "15. Shortest path" << endl
+        << "16. Save to file" << endl
+        << "17. Load from file" << endl
         << "0. Exit" << endl
         << "Choose option: ";
 }
@@ -40,6 +44,7 @@ vector<int> Manager::get_pipe_ids() {
     vector<int> ids;
     for (auto& [id, pipe] : pipes)
         ids.push_back(id);
+
     sort(ids.begin(), ids.end());
     return ids;
 }
@@ -48,6 +53,7 @@ vector<int> Manager::get_station_ids() {
     vector<int> ids;
     for (auto& [id, station] : stations)
         ids.push_back(id);
+
     sort(ids.begin(), ids.end());
     return ids;
 }
@@ -58,10 +64,12 @@ int Manager::ask_pipe_id(string prompt) {
     for (int id : ids)
         cout << id << ' ';
     cout << endl << prompt;
+
     while (true) {
         int id = GetCorrectNumber(ids.front(), ids.back());
         if (find(ids.begin(), ids.end(), id) != ids.end())
             return id;
+
         cout << "There is no pipe with ID " << id << ". Try again: ";
     }
 }
@@ -72,10 +80,12 @@ int Manager::ask_station_id(string prompt) {
     for (int id : ids)
         cout << id << ' ';
     cout << endl << prompt;
+
     while (true) {
         int id = GetCorrectNumber(ids.front(), ids.back());
         if (find(ids.begin(), ids.end(), id) != ids.end())
             return id;
+
         cout << "There is no station with ID " << id << ". Try again: ";
     }
 }
@@ -85,12 +95,14 @@ vector<int> Manager::ask_id_subset(vector<int> available) {
     for (int id : available)
         cout << id << ' ';
     cout << endl << "Enter one ID per line, 0 to finish." << endl;
+
     vector<int> chosen;
     while (true) {
         cout << "ID: ";
         int id = GetCorrectNumber(0, available.back());
         if (id == 0)
             break;
+
         if (find(available.begin(), available.end(), id) == available.end()) {
             cout << "ID " << id << " is not in the list." << endl;
             continue;
@@ -101,6 +113,7 @@ vector<int> Manager::ask_id_subset(vector<int> available) {
         }
         chosen.push_back(id);
     }
+
     sort(chosen.begin(), chosen.end());
     return chosen;
 }
@@ -110,6 +123,7 @@ void Manager::print_pipes(vector<int> ids) {
         cout << "No pipes found." << endl;
         return;
     }
+
     cout << "Found " << ids.size() << " pipes:" << endl;
     for (int id : ids)
         if (pipes.count(id))
@@ -121,6 +135,7 @@ void Manager::print_stations(vector<int> ids) {
         cout << "No stations found." << endl;
         return;
     }
+
     cout << "Found " << ids.size() << " stations:" << endl;
     for (int id : ids)
         if (stations.count(id))
@@ -142,6 +157,7 @@ int Manager::create_pipe(int diameter) {
     pipes[next_pipe_id] = new_pipe;
     cout << "Pipe added with ID " << next_pipe_id << "." << endl;
     next_pipe_id++;
+
     return next_pipe_id - 1;
 }
 
@@ -158,6 +174,7 @@ void Manager::display_all_pipes() {
         cout << "No pipes available." << endl;
         return;
     }
+
     cout << "ALL PIPES:" << endl;
     print_pipes(get_pipe_ids());
 }
@@ -167,6 +184,7 @@ void Manager::display_all_stations() {
         cout << "No stations available." << endl;
         return;
     }
+
     cout << "ALL STATIONS:" << endl;
     print_stations(get_station_ids());
 }
@@ -174,15 +192,17 @@ void Manager::display_all_stations() {
 void Manager::display_all_objects() {
     display_all_pipes();
     display_all_stations();
+
     if (connections.empty()) {
         cout << "No connections available." << endl;
         return;
     }
+
     cout << "ALL CONNECTIONS:" << endl;
     for (int id : get_pipe_ids())
         if (connections.count(id))
             cout << "  station " << connections[id].first << " -> station "
-                << connections[id].second << " by pipe " << id << endl;
+            << connections[id].second << " by pipe " << id << endl;
 }
 
 void Manager::edit_pipe() {
@@ -190,6 +210,7 @@ void Manager::edit_pipe() {
         cout << "No pipes available." << endl;
         return;
     }
+
     int id = ask_pipe_id("Enter ID of the pipe to edit: ");
     cout << pipes[id];
     cout << "1. Switch repair status" << endl
@@ -197,6 +218,7 @@ void Manager::edit_pipe() {
         << "3. Return the pipe to work" << endl
         << "0. Cancel" << endl
         << "Choose option: ";
+
     switch (GetCorrectNumber(0, 3)) {
     case 1:
         pipes[id].switch_repair();
@@ -211,6 +233,7 @@ void Manager::edit_pipe() {
         cout << "Nothing was changed." << endl;
         return;
     }
+
     cout << "Pipe " << id << " is now " << (pipes[id].get_repair() ? "in repair" : "in work") << "." << endl;
 }
 
@@ -219,6 +242,7 @@ void Manager::edit_station() {
         cout << "No stations available." << endl;
         return;
     }
+
     int id = ask_station_id("Enter ID of the station to edit: ");
     cout << stations[id];
     cout << "1. Start one workshop" << endl
@@ -226,6 +250,7 @@ void Manager::edit_station() {
         << "3. Set the amount of workshops in work" << endl
         << "0. Cancel" << endl
         << "Choose option: ";
+
     switch (GetCorrectNumber(0, 3)) {
     case 1:
         if (!stations[id].start_workshop()) {
@@ -247,6 +272,7 @@ void Manager::edit_station() {
         cout << "Nothing was changed." << endl;
         return;
     }
+
     cout << "Station " << id << " now has " << stations[id].get_workshops_in_work()
         << " of " << stations[id].get_workshops() << " workshops in work." << endl;
 }
@@ -256,9 +282,11 @@ void Manager::delete_pipe() {
         cout << "No pipes available." << endl;
         return;
     }
+
     int id = ask_pipe_id("Enter ID of the pipe to delete: ");
     pipes.erase(id);
     cout << "Pipe " << id << " deleted." << endl;
+
     if (connections.erase(id) > 0)
         cout << "The connection that used this pipe was removed too." << endl;
 }
@@ -268,9 +296,11 @@ void Manager::delete_station() {
         cout << "No stations available." << endl;
         return;
     }
+
     int id = ask_station_id("Enter ID of the station to delete: ");
     stations.erase(id);
     cout << "Station " << id << " deleted." << endl;
+
     int removed = 0;
     for (auto it = connections.begin(); it != connections.end();) {
         if (it->second.first == id || it->second.second == id) {
@@ -281,6 +311,7 @@ void Manager::delete_station() {
             ++it;
         }
     }
+
     if (removed > 0)
         cout << removed << " connections of this station were removed too." << endl;
 }
@@ -290,6 +321,7 @@ vector<int> Manager::find_pipes_by_name(string part) {
     for (auto& [id, pipe] : pipes)
         if (to_lower(pipe.get_name()).find(to_lower(part)) != string::npos)
             result.push_back(id);
+
     sort(result.begin(), result.end());
     return result;
 }
@@ -299,6 +331,7 @@ vector<int> Manager::find_pipes_by_repair(bool status) {
     for (auto& [id, pipe] : pipes)
         if (pipe.get_repair() == status)
             result.push_back(id);
+
     sort(result.begin(), result.end());
     return result;
 }
@@ -308,6 +341,7 @@ vector<int> Manager::find_stations_by_name(string part) {
     for (auto& [id, station] : stations)
         if (to_lower(station.get_name()).find(to_lower(part)) != string::npos)
             result.push_back(id);
+
     sort(result.begin(), result.end());
     return result;
 }
@@ -317,6 +351,7 @@ vector<int> Manager::find_stations_by_unused(double minimum, double maximum) {
     for (auto& [id, station] : stations)
         if (station.get_unused_percentage() >= minimum && station.get_unused_percentage() <= maximum)
             result.push_back(id);
+
     sort(result.begin(), result.end());
     return result;
 }
@@ -326,6 +361,7 @@ vector<int> Manager::find_free_pipes(int diameter) {
     for (auto& [id, pipe] : pipes)
         if (pipe.get_diameter() == diameter && connections.count(id) == 0)
             result.push_back(id);
+
     sort(result.begin(), result.end());
     return result;
 }
@@ -339,6 +375,7 @@ void Manager::search_menu() {
             << "4. Find stations by percentage of unused workshops" << endl
             << "0. Back to main menu" << endl
             << "Choose option: ";
+
         switch (GetCorrectNumber(0, 4)) {
         case 0:
             return;
@@ -380,6 +417,7 @@ void Manager::batch_menu() {
         cout << "No pipes available." << endl;
         return;
     }
+
     cout << endl << "SELECT PIPES:" << endl
         << "1. All pipes" << endl
         << "2. Pipes found by name" << endl
@@ -388,6 +426,7 @@ void Manager::batch_menu() {
         << "5. Result of the last search" << endl
         << "0. Cancel" << endl
         << "Choose option: ";
+
     vector<int> selected;
     switch (GetCorrectNumber(0, 5)) {
     case 0:
@@ -413,10 +452,12 @@ void Manager::batch_menu() {
         selected = found_pipes;
         break;
     }
+
     if (selected.empty()) {
         cout << "No pipes selected for the batch operation." << endl;
         return;
     }
+
     cout << "Selected " << selected.size() << " pipes:" << endl;
     print_pipes(selected);
     apply_batch(selected);
@@ -431,6 +472,7 @@ void Manager::apply_batch(vector<int> ids) {
         << "5. Choose a part of the selection and continue" << endl
         << "0. Cancel" << endl
         << "Choose option: ";
+
     int changed = 0;
     switch (GetCorrectNumber(0, 5)) {
     case 1:
@@ -494,16 +536,20 @@ void Manager::connect_stations() {
         cout << "At least two stations are required." << endl;
         return;
     }
+
     int from = ask_station_id("Enter ID of the input station: ");
     int to = ask_station_id("Enter ID of the output station: ");
     while (to == from) {
         cout << "Input and output stations must be different." << endl;
         to = ask_station_id("Enter ID of the output station: ");
     }
+
     cout << "Enter pipe diameter in mm (500, 700, 1000, 1400): ";
     int diameter = (int)GetCorrectDiameter();
+
     vector<int> free_pipes = find_free_pipes(diameter);
     int pipe_id = 0;
+
     if (free_pipes.empty()) {
         cout << "There is no free pipe with diameter " << diameter << " mm, a new one will be created." << endl;
         pipe_id = create_pipe(diameter);
@@ -512,6 +558,7 @@ void Manager::connect_stations() {
         cout << "Free pipes with diameter " << diameter << " mm:" << endl;
         print_pipes(free_pipes);
         cout << "Enter ID of the pipe to use, or 0 to create a new pipe: ";
+
         while (true) {
             pipe_id = GetCorrectNumber(0, free_pipes.back());
             if (pipe_id == 0) {
@@ -520,9 +567,11 @@ void Manager::connect_stations() {
             }
             if (find(free_pipes.begin(), free_pipes.end(), pipe_id) != free_pipes.end())
                 break;
+
             cout << "Pipe " << pipe_id << " is not in the list. Try again: ";
         }
     }
+
     connections[pipe_id] = make_pair(from, to);
     cout << "Station " << from << " -> station " << to << " connected by pipe " << pipe_id << "." << endl;
 }
@@ -532,34 +581,178 @@ void Manager::topological_sort() {
         cout << "No stations available." << endl;
         return;
     }
+
     unordered_map<int, vector<int>> adjacency;
     unordered_map<int, int> incoming;
     for (auto& [id, station] : stations)
         incoming[id] = 0;
+
     for (auto& [pipe_id, connection] : connections) {
         adjacency[connection.first].push_back(connection.second);
         incoming[connection.second]++;
     }
+
     vector<int> order;
     while (true) {
         int current = 0;
         for (auto& [id, degree] : incoming)
             if (degree == 0 && (current == 0 || id < current))
                 current = id;
+
         if (current == 0)
             break;
+
         incoming[current] = -1;
         order.push_back(current);
         for (int next : adjacency[current])
             incoming[next]--;
     }
+
     if (order.size() != stations.size()) {
         cout << "The network has a cycle, topological sort is impossible." << endl;
         return;
     }
+
     cout << "Topological order of stations: ";
     for (int id : order)
         cout << id << ' ';
+    cout << endl;
+}
+
+
+void Manager::max_flow() {
+    if (connections.empty()) {
+        cout << "No connections available." << endl;
+        return;
+    }
+
+    int source = ask_station_id("Enter ID of the source station: ");
+    int sink = ask_station_id("Enter ID of the destination station: ");
+    while (sink == source) {
+        cout << "Source and destination must be different." << endl;
+        sink = ask_station_id("Enter ID of the destination station: ");
+    }
+
+    unordered_map<int, unordered_map<int, long long>> capacity;
+    for (auto& [pipe_id, connection] : connections) {
+        if (!pipes.count(pipe_id))
+            continue;
+
+        long long value = llround(pipes[pipe_id].get_throughput());
+        if (value <= 0)
+            continue;
+
+        
+        capacity[connection.first][connection.second] += value;
+        capacity[connection.second][connection.first] += 0;
+    }
+
+    long long total = 0;
+    while (true) {
+        unordered_map<int, int> came_from;
+        came_from[source] = source;
+
+        queue<int> frontier;
+        frontier.push(source);
+        while (!frontier.empty() && came_from.count(sink) == 0) {
+            int current = frontier.front();
+            frontier.pop();
+            for (auto& [next, residual] : capacity[current])
+                if (residual > 0 && came_from.count(next) == 0) {
+                    came_from[next] = current;
+                    frontier.push(next);
+                }
+        }
+
+        if (came_from.count(sink) == 0)
+            break;
+
+        long long bottleneck = numeric_limits<long long>::max();
+        for (int node = sink; node != source; node = came_from[node])
+            bottleneck = min(bottleneck, capacity[came_from[node]][node]);
+
+        for (int node = sink; node != source; node = came_from[node]) {
+            capacity[came_from[node]][node] -= bottleneck;
+            capacity[node][came_from[node]] += bottleneck;
+        }
+        total += bottleneck;
+    }
+
+    if (total == 0) {
+        cout << "There is no working route from station " << source << " to station " << sink << "." << endl;
+        return;
+    }
+
+    cout << "Max flow from station " << source << " to station " << sink << " = " << total << endl;
+}
+
+void Manager::shortest_path() {
+    if (connections.empty()) {
+        cout << "No connections available." << endl;
+        return;
+    }
+
+    int source = ask_station_id("Enter ID of the start station: ");
+    int target = ask_station_id("Enter ID of the finish station: ");
+    while (target == source) {
+        cout << "Start and finish must be different." << endl;
+        target = ask_station_id("Enter ID of the finish station: ");
+    }
+
+    unordered_map<int, vector<pair<int, double>>> adjacency;
+    for (auto& [pipe_id, connection] : connections) {
+        if (!pipes.count(pipe_id))
+            continue;
+
+        double weight = pipes[pipe_id].get_weight();
+        if (isinf(weight))
+            continue;
+
+        adjacency[connection.first].push_back(make_pair(connection.second, weight));
+    }
+
+    unordered_map<int, double> distance;
+    unordered_map<int, int> came_from;
+    for (auto& [id, station] : stations)
+        distance[id] = numeric_limits<double>::infinity();
+    distance[source] = 0;
+
+    priority_queue<pair<double, int>, vector<pair<double, int>>, greater<pair<double, int>>> frontier;
+    frontier.push(make_pair(0.0, source));
+
+    while (!frontier.empty()) {
+        double current_distance = frontier.top().first;
+        int current = frontier.top().second;
+        frontier.pop();
+
+        if (current_distance > distance[current])
+            continue;
+
+        for (auto& [next, weight] : adjacency[current])
+            if (current_distance + weight < distance[next]) {
+                distance[next] = current_distance + weight;
+                came_from[next] = current;
+                frontier.push(make_pair(distance[next], next));
+            }
+    }
+
+    if (isinf(distance[target])) {
+        cout << "There is no working route from station " << source << " to station " << target << "." << endl;
+        return;
+    }
+
+    vector<int> path;
+    for (int node = target; node != source; node = came_from[node])
+        path.push_back(node);
+    path.push_back(source);
+    reverse(path.begin(), path.end());
+
+    cout << "Shortest path (" << distance[target] << " km): ";
+    for (size_t i = 0; i < path.size(); i++) {
+        cout << path[i];
+        if (i + 1 < path.size())
+            cout << " -> ";
+    }
     cout << endl;
 }
 
@@ -567,11 +760,13 @@ void Manager::save_to_file() {
     string filename;
     cout << "Enter file name to save: ";
     INPUT_LINE(cin, filename);
+
     ofstream outputF(filename);
     if (!outputF.is_open()) {
         cout << "Error opening file for writing!" << endl;
         return;
     }
+
     outputF << "NEXT_IDS" << endl << next_pipe_id << ' ' << next_station_id << endl;
     for (auto& [id, pipe] : pipes)
         pipe.save_pipe(outputF);
@@ -579,7 +774,8 @@ void Manager::save_to_file() {
         station.save_station(outputF);
     for (auto& [pipe_id, connection] : connections)
         outputF << "CONNECTION" << endl << pipe_id << endl
-            << connection.first << ' ' << connection.second << endl;
+        << connection.first << ' ' << connection.second << endl;
+
     cout << "Successfully saved to " << filename << endl;
 }
 
@@ -587,6 +783,7 @@ void Manager::load_from_file() {
     string filename;
     cout << "Enter file name to load: ";
     INPUT_LINE(cin, filename);
+
     ifstream loadF(filename);
     if (!loadF.is_open()) {
         cout << "Error opening file for reading!" << endl;
@@ -619,11 +816,13 @@ void Manager::load_from_file() {
             cout << "File " << filename << " is damaged, nothing was loaded." << endl;
             return;
         }
+
         if (loadF.fail() && !loadF.eof()) {
             cout << "File " << filename << " is damaged, nothing was loaded." << endl;
             return;
         }
     }
+
     loaded.drop_broken_connections();
     pipes = loaded.pipes;
     stations = loaded.stations;
@@ -637,6 +836,7 @@ void Manager::load_from_file() {
     for (auto& [id, station] : stations)
         if (id >= next_station_id)
             next_station_id = id + 1;
+
     cout << "Successfully loaded from " << filename << endl;
     cout << pipes.size() << " pipes, " << stations.size() << " stations, "
         << connections.size() << " connections." << endl;
