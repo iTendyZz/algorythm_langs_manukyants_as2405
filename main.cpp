@@ -19,7 +19,7 @@ int main()
     Manager manager;
     while (1) {
         manager.display_main_menu();
-        switch (GetCorrectNumber(0, 13)) {
+        switch (GetCorrectNumber(0, 15)) {
             case 0:
                 return 0;
             case 1:
@@ -56,9 +56,15 @@ int main()
                 manager.batch_menu();
                 break;
             case 12:
-                manager.save_to_file();
+                manager.connect_stations();
                 break;
             case 13:
+                manager.topological_sort();
+                break;
+            case 14:
+                manager.save_to_file();
+                break;
+            case 15:
                 manager.load_from_file();
                 break;
         }

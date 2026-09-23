@@ -10,6 +10,7 @@ class Manager {
 private:
     unordered_map<int, Pipe> pipes;
     unordered_map<int, Station> stations;
+    unordered_map<int, pair<int, int>> connections;
     int next_pipe_id = 1;
     int next_station_id = 1;
     vector<int> found_pipes;
@@ -25,7 +26,10 @@ private:
     vector<int> find_pipes_by_repair(bool status);
     vector<int> find_stations_by_name(string part);
     vector<int> find_stations_by_unused(double minimum, double maximum);
+    vector<int> find_free_pipes(int diameter);
+    int create_pipe(int diameter);
     void apply_batch(vector<int> ids);
+    void drop_broken_connections();
 
 public:
     void display_main_menu();
@@ -40,6 +44,8 @@ public:
     void delete_station();
     void search_menu();
     void batch_menu();
+    void connect_stations();
+    void topological_sort();
     void save_to_file();
     void load_from_file();
 };
